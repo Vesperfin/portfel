@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Какой ты инвестор? — VF Stock</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--tx:#1b2333;--mut:#6b7488;--ac:#1f5eff;--acs:#e8eeff;--bd:#dde2ee;--ok:#12a36b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1420;--card:#182033;--tx:#e8ecf5;--mut:#98a3bb;--ac:#6c93ff;--acs:#22304f;--bd:#2c3650;--ok:#3ecf94}}
+:root[data-theme="dark"]{--bg:#0f1420;--card:#182033;--tx:#e8ecf5;--mut:#98a3bb;--ac:#6c93ff;--acs:#22304f;--bd:#2c3650;--ok:#3ecf94}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:680px;margin:0 auto;padding:20px 16px 48px}
+.brand{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-bottom:12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:22px}
+h1{font-size:26px;line-height:1.2;margin:0 0 10px}
+h2{font-size:19px;line-height:1.35;margin:0 0 16px}
+p{margin:0 0 12px}.mut{color:var(--mut);font-size:14px}
+.bar{height:6px;background:var(--bd);border-radius:6px;margin-bottom:18px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ac);transition:width .25s}
+.opt{display:block;width:100%;text-align:left;background:var(--card);color:var(--tx);border:1.5px solid var(--bd);border-radius:12px;padding:12px 14px;margin-bottom:10px;font:inherit;cursor:pointer}
+.opt:hover,.opt.sel{border-color:var(--ac);background:var(--acs)}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:12px;padding:13px 22px;font:600 16px inherit;font-family:inherit;cursor:pointer}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ac);border:1.5px solid var(--ac)}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.score{display:inline-block;background:var(--acs);color:var(--ac);border-radius:20px;padding:3px 12px;font-size:14px;font-weight:600;margin-bottom:10px}
+.res{margin:14px 0}.res .l{display:flex;justify-content:space-between;gap:8px;font-size:15px;margin-bottom:4px}
+.res .t{height:12px;background:var(--bd);border-radius:8px;overflow:hidden}.res .t i{display:block;height:100%;background:var(--ac);border-radius:8px}
+.res.me .t i{background:var(--ok)}
+.note{background:var(--acs);border-radius:10px;padding:10px 12px;font-size:14px;margin-top:12px}
+.stk{display:flex}.res .stk i{height:100%;border-radius:0}.res .stk i.lo{background:var(--mut)}.res .stk i.eq{background:var(--ok)}.res .stk i.hi{background:var(--ac)}.lg{margin-top:4px}
+hr{border:0;border-top:1px solid var(--bd);margin:20px 0}
+</style>
+</head>
+<body>
+<main><div class="brand">VF Stock · Школа Vesperfin</div><div id="app"></div></main>
+<script>
+var T=[
+{n:"Консерватор 💼",max:20,d:"Вы слишком консервативны. Скорее всего, инфляция «съедает» часть ваших накоплений. Небольшая доля риска поможет вам увеличить эффективность сбережений. Вы сможете быстрее достигать ваших целей."},
+{n:"Умеренный консерватор 👛",max:31,d:"Вы умный накопитель. Хорошо умеете оценивать риски. Ваши накопления растут, но, возможно, немного медленнее, чем вам бы того хотелось. Выделите определенную сумму на более рискованные сделки. Попробуйте активно управлять вашими инвестициями."},
+{n:"Сбалансированный инвестор 👑",max:44,d:"Браво! Вы не только умный накопитель, но и готовы к разумному риску. Вам нужно поддерживать общение с единомышленниками. Расширение кругозора приведет вас к еще большему успеху."},
+{n:"Умеренно-агрессивный инвестор 🎒",max:52,d:"Вы готовы брать на себя высокий риск в надежде на большую доходность. Ваши потери больше того, что вам бы хотелось видеть. Желательно снизить долю риска: выделите на рискованные инвестиции определенную долю, а остальное распределите в надежные активы и начните получать более стабильный доход."},
+{n:"Агрессивный инвестор 👟",max:60,d:"Вы смелы и бесстрашны! Но это часто оборачивается не в вашу пользу. Оцените результаты: если они вас не радуют, начните что-то менять уже сейчас. Риск не всегда оправдан, особенно если вероятность потерь выше возможности заработать. Добавьте консервативных надежных инструментов в свой арсенал."}];
+var Q=[
+["Какой % от дохода Вы готовы ежемесячно инвестировать?",[["Более 20%",1],["11–20%",2],["5–10%",3],["1–4%",4],["У меня не остается свободных денег: весь доход уходит на текущие расходы и/или кредиты",5]]],
+["В какие инструменты Вы преимущественно инвестируете?",[["Банковский вклад / накопительный счет",1],["Недвижимость",2],["Акции / облигации",3],["Торгую фьючерсами и/или опционами",4],["Пробую все и криптовалюту",5]]],
+["Вы купили акцию, и ее стоимость снизилась на 20%. Что будете делать?",[["Продам, опасаясь, что цена упадет еще ниже",1],["Оставлю как есть, цена рано или поздно восстановится",2],["Докуплю еще несколько таких акций для усреднения и/или акции более перспективной компании",3],["Буду активно добирать акции в портфель",4],["Продам эту акцию и куплю в портфель другие",5]]],
+["Вы докупили акцию с минусом 20% (усреднили), а цена упала еще на 25%. Что будете делать?",[["Рынок явно что-то имеет против меня. Надо было продавать раньше. Продам сейчас, пока не упала еще сильнее",1],["Все равно оставлю как есть, цена рано или поздно восстановится",2],["Докуплю еще, если нет новых фактов против компании, или буду искать более перспективные идеи",3],["Продам убыточную акцию и на оставшиеся деньги куплю акцию более перспективной компании",4],["С упавшей акцией ничего не буду делать. Докуплю другую, более перспективную, чтобы снизить общий % убытка",5]]],
+["Что будете делать, если стоимость Вашего портфеля акций на негативных новостях упадет на 45%?",[["Продам все акции до лучших времен и положу деньги на депозит",1],["Продам только плюсовые позиции по текущей цене, вдруг цена упадет еще ниже",2],["Буду докупать хорошие акции на свободные деньги",3],["Докуплю упавшие акции, чтобы усреднить их стоимость",4],["Продам часть акций, чтобы купить другие по выгодной цене",5]]],
+["Вы выиграли в лотерею 5 000 000 руб. Как Вы ими распорядитесь?",[["Положу на банковский вклад",1],["Закрою ипотеку и/или кредиты",2],["Вложу в акции, облигации",3],["Куплю машину и поеду в путешествие, о котором давно мечтал(а)",4],["Обменяю на валюту: доллары, евро, юани и т.д.",5]]],
+["Вы оставили предоплату за путевку на море, и сразу после этого Вас уведомляют об увольнении. Как поступите?",[["Не смогу полноценно отдохнуть, мысли будут заняты поиском работы, поэтому отменю поездку",1],["Поеду в отпуск, но заменю тур на более дешевый",2],["Поеду в отпуск, так как у меня есть подушка безопасности. Но перед этим разошлю резюме",3],["Поеду в отпуск, я заранее отложил(а) деньги на эту цель",4],["Возьму путевку в кредит",5]]],
+["Играете ли Вы в азартные игры?",[["Я не верю, что можно что-то выиграть. Я не азартный человек",1],["Пару раз покупал(а) лотерейные билеты для интереса, но ничего не выигрывал(а)",2],["Люблю покупать лотерейные билеты и участвовать в розыгрышах, но больше для удовольствия, а не ради заработка",3],["Часто покупаю лотерейные билеты. Пока ничего крупного не выигрывал(а), но однажды точно сорву куш",4],["В казино я только проигрываю. Мне не везёт. Но лотерейные билеты покупаю регулярно",5]]],
+["Есть ли у Вас «подушка безопасности»?",[["Достаточно средств, чтобы жить на текущем уровне комфорта 1 год и более",1],["Подушка в размере 6–12 ежемесячных доходов",2],["Подушка в размере 3–6 ежемесячных доходов",3],["Подушка в размере 1–2 ежемесячных доходов",4],["У меня нет подушки безопасности",5]]],
+["Инвестировали ли Вы когда-нибудь в акции?",[["Нет, я ничего не знаю об этом",1],["Да, но имел(а) негативный опыт: акции сильно упали, и я распродал(а) активы, чтобы сохранить остаток денег",2],["Да, но только в ликвидные акции крупных надежных компаний, «голубые фишки»",3],["Да, покупаю и акции надежных компаний, и неликвидные: они могут очень быстро вырасти в цене",4],["Да, но я вечно покупаю не те акции. Они сильно падают, и я покупаю новые",5]]],
+["Как часто в магазине Вы делаете спонтанные покупки?",[["Только по заранее составленному списку, не отклоняюсь от него",1],["Очень редко",2],["Только если продавец был очень убедительным и хорошо «продал» мне покупку",3],["Надпись «акция» или «распродажа» — и не могу удержаться. Родные зовут меня «жертвой маркетологов»",4],["Постоянно приношу домой спонтанные покупки, большинством из которых даже не пользуюсь",5]]],
+["Ведете ли Вы бюджет?",[["Все доходы и расходы регулярно фиксирую и анализирую",1],["Веду бюджет на постоянной основе",2],["Средства распределены по расходам и накоплениям, но расходы не записываю",3],["Нет, ленюсь. Плюс-минус мне хватает",4],["Не вижу в этом смысла, денег все равно ни на что не хватает",5]]]];
+
+var FORM="https://docs.google.com/forms/d/e/1FAIpQLScL-PK30aM0MGZ8RMOGDwyAP6wouzb6wpUP-bYQyHBk300i3Q/formResponse",E_TYPE="entry.1897447799",E_RES="entry.798844974";
+var app=document.getElementById("app"),i=0,ans=[],total=0,tIdx=0,picked=null;
+function el(h){var d=document.createElement("div");d.innerHTML=h;return d.firstElementChild}
+function show(n){app.innerHTML="";app.appendChild(n);window.scrollTo(0,0)}
+function shuffle(a){return a.map(function(x){return[Math.random(),x]}).sort(function(p,q){return p[0]-q[0]}).map(function(p){return p[1]})}
+function intro(){
+ var n=el('<div class="card"><h1>Какой ты инвестор?</h1><p>12 вопросов про деньги, риск и привычки. В конце вы узнаете свой тип, выберете его в списке и проголосуете, чтобы мы увидели, каких инвесторов среди нас больше всего.</p><p class="mut">Займет около 3 минут. Ответы анонимны.</p><div class="row"><button class="btn" id="go">Начать тест</button></div></div>');
+ show(n);n.querySelector("#go").onclick=function(){i=0;ans=[];question()};
+}
+function question(){
+ var q=Q[i],n=el('<div class="card"><div class="mut">Вопрос '+(i+1)+' из '+Q.length+'</div><div class="bar"><i style="width:'+(i/Q.length*100)+'%"></i></div><h2></h2><div id="o"></div><div class="row"><button class="btn ghost" id="bk">Назад</button></div></div>');
+ n.querySelector("h2").textContent=q[0];
+ var o=n.querySelector("#o");
+ shuffle(q[1]).forEach(function(op){var b=document.createElement("button");b.className="opt"+(ans[i]===op[1]?" sel":"");b.textContent=op[0];
+  b.onclick=function(){ans[i]=op[1];if(i<Q.length-1){i++;question()}else finish()};o.appendChild(b)});
+ var bk=n.querySelector("#bk");if(i===0)bk.style.display="none";bk.onclick=function(){i--;question()};
+ show(n);
+}
+function finish(){
+ total=ans.reduce(function(a,b){return a+b},0);
+ tIdx=T.findIndex(function(t){return total<=t.max});if(tIdx<0)tIdx=T.length-1;
+ var t=T[tIdx],done=false;try{done=localStorage.getItem("vfq_voted")==="1"}catch(e){}
+ var n=el('<div class="card"><div class="score"></div><h1></h1><p></p><hr><h2>Проголосуйте за свой тип</h2><p class="mut">Выберите тип, который, по-вашему, вам подходит — он может отличаться от результата теста.</p><div id="o"></div><div class="row"><button class="btn" id="v" disabled>Проголосовать</button></div><div class="note" id="msg" style="display:none"></div></div>');
+ n.querySelector(".score").textContent="Ваш результат: "+total+" баллов";
+ n.querySelector("h1").textContent=t.n;n.querySelector("p").textContent=t.d;
+ picked=null;var o=n.querySelector("#o"),v=n.querySelector("#v"),msg=n.querySelector("#msg");
+ if(done){v.textContent="Вы уже голосовали с этого устройства"}
+ T.forEach(function(x,k){var b=document.createElement("button");b.className="opt";b.textContent=x.n;
+  b.onclick=function(){picked=k;[].forEach.call(o.children,function(c){c.classList.remove("sel")});b.classList.add("sel");if(!done)v.disabled=false};o.appendChild(b)});
+ v.onclick=function(){
+  v.disabled=true;msg.style.display="none";
+  var body=new URLSearchParams();body.append(E_TYPE,T[picked].n);body.append(E_RES,t.n+" — "+total+" баллов");
+  fetch(FORM,{method:"POST",mode:"no-cors",body:body}).then(function(){
+   try{localStorage.setItem("vfq_voted","1")}catch(e){}
+   thanks(picked,tIdx);
+  },function(){v.disabled=false;msg.style.display="block";msg.textContent="Не удалось отправить голос. Проверьте интернет и попробуйте еще раз."});
+ };
+ show(n);
+}
+function thanks(p,r){
+ var n=el('<div class="card"><h1>Спасибо, ваш голос принят!</h1><p id="c"></p><p class="mut">Итоги голосования мы разберем в канале VF Stock.</p><div class="row"><button class="btn ghost" id="a">Пройти тест заново</button></div></div>');
+ n.querySelector("#c").textContent="Тест показал: "+T[r].n+". Вы выбрали: "+T[p].n+(p===r?" — совпало.":p<r?" — вы считаете себя осторожнее, чем показал тест.":" — вы считаете себя рискованнее, чем показал тест.");
+ n.querySelector("#a").onclick=intro;show(n);
+}
+intro();
+</script>
+</body>
+</html>
