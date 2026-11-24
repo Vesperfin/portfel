@@ -79,19 +79,19 @@ function question(){
 function finish(){
  total=ans.reduce(function(a,b){return a+b},0);
  tIdx=T.findIndex(function(t){return total<=t.max});if(tIdx<0)tIdx=T.length-1;
- var t=T[tIdx],done=false;try{done=localStorage.getItem("vfq_voted")==="1"}catch(e){}
+ var t=T[tIdx],done=false;try{done=(+localStorage.getItem("vfq_cnt")||0)>=3}catch(e){}
  var n=el('<div class="card"><div class="score"></div><h1></h1><p></p><hr><h2>Проголосуйте за свой тип</h2><p class="mut">Выберите тип, который, по-вашему, вам подходит — он может отличаться от результата теста.</p><div id="o"></div><div class="row"><button class="btn" id="v" disabled>Проголосовать</button></div><div class="note" id="msg" style="display:none"></div></div>');
  n.querySelector(".score").textContent="Ваш результат: "+total+" баллов";
  n.querySelector("h1").textContent=t.n;n.querySelector("p").textContent=t.d;
  picked=null;var o=n.querySelector("#o"),v=n.querySelector("#v"),msg=n.querySelector("#msg");
- if(done){v.textContent="Вы уже голосовали с этого устройства"}
+ if(done){v.textContent="Лимит голосов с этого устройства исчерпан (3)"}
  T.forEach(function(x,k){var b=document.createElement("button");b.className="opt";b.textContent=x.n;
   b.onclick=function(){picked=k;[].forEach.call(o.children,function(c){c.classList.remove("sel")});b.classList.add("sel");if(!done)v.disabled=false};o.appendChild(b)});
  v.onclick=function(){
   v.disabled=true;msg.style.display="none";
   var body=new URLSearchParams();body.append(E_TYPE,T[picked].n);body.append(E_RES,t.n+" — "+total+" баллов");
   fetch(FORM,{method:"POST",mode:"no-cors",body:body}).then(function(){
-   try{localStorage.setItem("vfq_voted","1")}catch(e){}
+   try{localStorage.setItem("vfq_cnt",String((+localStorage.getItem("vfq_cnt")||0)+1))}catch(e){}
    thanks(picked,tIdx);
   },function(){v.disabled=false;msg.style.display="block";msg.textContent="Не удалось отправить голос. Проверьте интернет и попробуйте еще раз."});
  };
